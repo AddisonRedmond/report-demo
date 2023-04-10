@@ -10,7 +10,7 @@ const Demo: React.FC = () => {
       exit={{ opacity: 0 }}
       transition={{ duration: 0.5 }}
     >
-      <div className=" w-3/4 max-h-[80vh] rounded-md flex flex-col">
+      <div className=" w-11/12 max-h-[80vh] rounded-md flex flex-col">
         <Table />
       </div>
     </motion.div>
