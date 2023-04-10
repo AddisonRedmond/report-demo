@@ -10,7 +10,9 @@ const Demo: React.FC = () => {
       exit={{ opacity: 0 }}
       transition={{ duration: 0.5 }}
     >
-    <Table />
+      <div className=" w-3/4 overflow-auto">
+        <Table />
+      </div>
     </motion.div>
   );
 };
