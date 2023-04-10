@@ -25,7 +25,8 @@ const variants: any = {
     borderRadius: "10px",
   },
   closed: {
-    position: "relative",
+    position: "fixed",
+    top: "10px",
     borderRadius: "300px",
   },
 };
