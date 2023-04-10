@@ -1,4 +1,3 @@
-import { Router } from "react-router-dom";
 
 import AnimatedRoutes from "./components/AnimatedRoutes";
 function App() {

@@ -1,12 +1,20 @@
 import { useMemo } from "react";
 import { createRandomFacts, createRandomUser } from "../static-data/report1";
-import { Column, useTable, useSortBy, usePagination } from "react-table";
+import {
+  Column,
+  useTable,
+  useSortBy,
+  usePagination,
+  useFilters,
+  useGlobalFilter,
+  useAsyncDebounce,
+} from "react-table";
 import "../styles/table.css";
 const Table = () => {
   const randomUserData = (): any => {
     let userStore = [];
     for (let i = 0; i < 100; i++) {
-      userStore.push(createRandomUser());
+      userStore.push(createRandomFacts());
     }
     return userStore;
   };
@@ -46,89 +54,43 @@ const Table = () => {
 
   return (
     <>
-      <table className=" border-none" {...getTableProps()}>
-        <thead>
-          {
-            // Loop over the header rows
-            headerGroups.map((headerGroup) => (
-              // Apply the header row props
-              <tr className="" {...headerGroup.getHeaderGroupProps()}>
-                {
-                  // Loop over the headers in each row
-                  headerGroup.headers.map((column) => (
-                    // Apply the header cell props
-                    <th
-                      className="p-4 text-xl bg-slate-700 text-white font-semibold border-none"
-                      {...column.getHeaderProps(column.getSortByToggleProps())}
-                    >
-                      {column.render("Header")}
-                      {/* Add a sort direction indicator */}
-                      <span>
-                        {column.isSorted
-                          ? column.isSortedDesc
-                            ? " 🔽"
-                            : " 🔼"
-                          : ""}
-                      </span>
-                    </th>
-                  ))
-                }
-              </tr>
-            ))
-          }
-        </thead>
-        {/* Apply the table body props */}
-        <tbody {...getTableBodyProps()}>
-          {
-            // Loop over the table rows
-            page.map((row, index) => {
-              // Prepare the row for display
-              prepareRow(row);
-              return (
-                // Apply the row props
-                <tr {...row.getRowProps()}>
-                  {
-                    // Loop over the rows cells
-                    row.cells.map((cell) => {
-                      // Apply the cell props
-                      return (
-                        <td className=" border-none p-4" {...cell.getCellProps()}>
-                          {
-                            // Render the cell contents
-                            cell.render("Cell")
-                          }
-                        </td>
-                      );
-                    })
-                  }
-                </tr>
-              );
-            })
-          }
-        </tbody>
-      </table>
-      <div className="pagination">
-        <button onClick={() => gotoPage(0)} disabled={!canPreviousPage}>
-          {"<<"}
-        </button>{" "}
-        <button onClick={() => previousPage()} disabled={!canPreviousPage}>
-          {"<"}
-        </button>{" "}
-        <button onClick={() => nextPage()} disabled={!canNextPage}>
-          {">"}
-        </button>{" "}
-        <button onClick={() => gotoPage(pageCount - 1)} disabled={!canNextPage}>
-          {">>"}
-        </button>{" "}
-        <span>
-          Page{" "}
-          <strong>
-            {pageIndex + 1} of {pageOptions.length}
-          </strong>{" "}
-        </span>
-        <span>
-          | Go to page:{" "}
+      <div className="pagination ml-auto flex justify-between w-full mb-3">
+        <div>
+          <button
+            className=" bg-zinc-900 text-white p-2 rounded-l-full cursor-pointer font-semibold hover:bg-zinc-600 ease-in-out duration-200"
+            onClick={() => gotoPage(0)}
+            disabled={!canPreviousPage}
+          >
+            {"First Page"}
+          </button>{" "}
+          <button
+            className=" bg-zinc-900 text-white p-2  cursor-pointer font-semibold hover:bg-zinc-600 ease-in-out duration-200"
+            onClick={() => previousPage()}
+            disabled={!canPreviousPage}
+          >
+            {"👈🏽"}
+          </button>{" "}
+          <button
+            className=" bg-zinc-900 text-white p-2  cursor-pointer font-semibold hover:bg-zinc-600 ease-in-out duration-200"
+            onClick={() => nextPage()}
+            disabled={!canNextPage}
+          >
+            {"👉🏽"}
+          </button>{" "}
+          <button
+            className=" bg-zinc-900 text-white p-2 rounded-r-full cursor-pointer font-semibold hover:bg-zinc-600 ease-in-out duration-200"
+            onClick={() => gotoPage(pageCount - 1)}
+            disabled={!canNextPage}
+          >
+            {"Last Page"}
+          </button>{" "}
+        </div>
+        <div className="flex items-center">
+          <div className="bg-zinc-900 text-white font-semibold p-2 rounded-l-full border-r-2 border-white">
+            <p>Jump to page</p>
+          </div>
           <input
+            className="bg-zinc-900 text-white font-semibold p-2 rounded-r-full text-center"
             type="number"
             defaultValue={pageIndex + 1}
             onChange={(e) => {
@@ -137,19 +99,102 @@ const Table = () => {
             }}
             style={{ width: "100px" }}
           />
-        </span>{" "}
-        <select
-          value={pageSize}
-          onChange={(e) => {
-            setPageSize(Number(e.target.value));
-          }}
-        >
-          {[10, 20, 30, 40, 50].map((pageSize) => (
-            <option key={pageSize} value={pageSize}>
-              Show {pageSize}
-            </option>
-          ))}
-        </select>
+        </div>
+        <div className="bg-zinc-900 text-white rounded-full p-2">
+          <p>
+            On page{" "}
+            <span className="font-bold">{`${pageIndex + 1} of ${
+              pageOptions.length
+            }`}</span>
+          </p>
+        </div>
+        <div className="flex items-center">
+          <div className="bg-black rounded-l-full h-full text-white font-semibold border-r-2 border-white">
+            <p className=" p-2">Show</p>
+          </div>
+
+          <select
+            className="bg-black rounded-r-full text-white font-semibold p-2 border-none"
+            value={pageSize}
+            onChange={(e) => {
+              setPageSize(Number(e.target.value));
+            }}
+          >
+            {[10, 20, 30, 40, 50].map((pageSize) => (
+              <option key={pageSize} value={pageSize}>
+                {pageSize}
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
+      <div className="overflow-auto rounded-md">
+        <table className=" w-full border-none" {...getTableProps()}>
+          <thead>
+            {
+              // Loop over the header rows
+              headerGroups.map((headerGroup) => (
+                // Apply the header row props
+                <tr {...headerGroup.getHeaderGroupProps()}>
+                  {
+                    // Loop over the headers in each row
+                    headerGroup.headers.map((column) => (
+                      // Apply the header cell props
+                      <th
+                        className="p-4 text-xl bg-slate-700 text-white font-semibold border-none"
+                        {...column.getHeaderProps(
+                          column.getSortByToggleProps()
+                        )}
+                      >
+                        {column.render("Header")}
+                        {/* Add a sort direction indicator */}
+                        <span>
+                          {column.isSorted
+                            ? column.isSortedDesc
+                              ? " 🔽"
+                              : " 🔼"
+                            : ""}
+                        </span>
+                      </th>
+                    ))
+                  }
+                </tr>
+              ))
+            }
+          </thead>
+          {/* Apply the table body props */}
+          <tbody {...getTableBodyProps()}>
+            {
+              // Loop over the table rows
+              page.map((row, index) => {
+                // Prepare the row for display
+                prepareRow(row);
+                return (
+                  // Apply the row props
+                  <tr {...row.getRowProps()}>
+                    {
+                      // Loop over the rows cells
+                      row.cells.map((cell) => {
+                        // Apply the cell props
+                        return (
+                          <td
+                            className=" border-none p-4"
+                            {...cell.getCellProps()}
+                          >
+                            {
+                              // Render the cell contents
+                              cell.render("Cell")
+                            }
+                          </td>
+                        );
+                      })
+                    }
+                  </tr>
+                );
+              })
+            }
+          </tbody>
+        </table>
       </div>
     </>
   );
