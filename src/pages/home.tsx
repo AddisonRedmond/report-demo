@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 const Home: React.FC = () => {
   return (
     <motion.div
@@ -7,7 +7,7 @@ const Home: React.FC = () => {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      transition={{ duration: 1 }}
+      transition={{ duration: .5 }}
       className="h-[100vh] w-[100vw] flex"
     >
       <div className=" w-1/2 h-full flex flex-col justify-center items-center bg-purple-950 text-white text-6xl font-semibold text-center">
