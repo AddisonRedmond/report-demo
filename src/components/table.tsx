@@ -12,24 +12,7 @@ import {
   useAsyncDebounce,
 } from "react-table";
 import "../styles/table.css";
-
-const variants: any = {
-  open: {
-    position: "fixed",
-    top: "50%",
-    left: "50%",
-    transform: "translate(-50%, -50%)",
-    zIndex: "10",
-    width: "30vw",
-    height: "30vh",
-    borderRadius: "10px",
-  },
-  closed: {
-    position: "fixed",
-    top: "10px",
-    borderRadius: "300px",
-  },
-};
+import Visualize from "./visualize";
 
 const Table = () => {
   const [isBuildChart, setIsBuildChart] = useState<boolean>(false);
@@ -78,15 +61,10 @@ const Table = () => {
   return (
     <>
       <div className="flex w-fit items-center text-white font-semibold">
-      
-        <motion.div
-          animate={isBuildChart ? "open" : "closed"}
-          variants={variants}
-          className="bg-black cursor-pointer w-fit p-2"
-          onClick={() => setIsBuildChart(!isBuildChart)}
-        >
-         <p>Visualize</p>
-        </motion.div>
+        <Visualize
+          isBuildChart={isBuildChart}
+          setIsBuildChart={setIsBuildChart}
+        />
       </div>
 
       <div className="pagination ml-auto flex justify-between w-full mb-3">
